@@ -3,14 +3,18 @@ const express = require('express');
 module.exports = function (passport, userModel) {
   const router = express.Router();
 
-  router.post('/signup', (req, res, next) => {
-    userModel.create(req.body)
-      .then((user) => {
+  router.post('/register', (req, res, next) => {
+    userModel.create(req.body, (err, res) => {
+      if (err) {
+        next(err);
+      } else {
+        req.login(user, (err, res) => {
+          if (err) next (err);
+        });
         res.status(201);
         res.json(user);
-        req.login(user);
-      })
-      .catch(next);
+      }
+    })
   });
 
   router.post('/login', (req, res, next) => {

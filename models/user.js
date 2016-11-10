@@ -40,35 +40,39 @@ module.exports = function (connection) {
   });
 
   userSchema.plugin(autoIncrement.plugin, 'User');
-  userSchema.pre('save', function (next) {
-    setDates.bind(this)();
-    userSchema.methods.hashPassword(this.password)
-      .then(hashed => this.password = hashed)
-      .then(next);
+
+  userSchema.pre('save', function (next, done) {
+    this.updated_at = new Date();
+    if (!this.created_at) {
+      this.created_at = this.updated_at;
+    }
+    userSchema.methods.hashPassword(this.password, (err, hashedPass) => {
+      if (err) {
+        done(err);
+      }
+      this.password = hashedPass;
+      next();
+    });
   });
 
-  userSchema.methods.validPassword = function(password) {
-    return bcrypt.compareSync(password, this.password);
+  userSchema.methods.checkPassword = function (password, callback) {
+    bcrypt.compare(password, this.password, (err, res) => {
+      if (err) {
+        callback(err);
+        return;
+      }
+      callback(null, res);
+    });
   };
 
-  function setDates() {
-    const currentDate = new Date();
-    this.updated_at = currentDate;
-    if (!this.created_at) {
-      this.created_at = currentDate;
-    }
-    ;
-  };
-
-  userSchema.methods.hashPassword = function(password) {
-    return new Promise((resolve, reject) => {
-      bcrypt.hash(password, 10, (err, hashed) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(hashed);
-        }
-      });
+  userSchema.methods.hashPassword = function (password, callback) {
+    bcrypt.hash(password, 10, (err, hashed) => {
+      if (err) {
+        callback(err);
+      } else {
+        callback(null, hashed);
+      }
+      ;
     });
   };
 
