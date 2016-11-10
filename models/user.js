@@ -42,9 +42,14 @@ module.exports = function (connection) {
   userSchema.plugin(autoIncrement.plugin, 'User');
   userSchema.pre('save', function (next) {
     setDates.bind(this)();
-    hashPassword.bind(this)()
+    userSchema.methods.hashPassword(this.password)
+      .then(hashed => this.password = hashed)
       .then(next);
   });
+
+  userSchema.methods.validPassword = function(password) {
+    return bcrypt.compareSync(password, this.password);
+  };
 
   function setDates() {
     const currentDate = new Date();
@@ -55,20 +60,13 @@ module.exports = function (connection) {
     ;
   };
 
-  function hashPassword() {
+  userSchema.methods.hashPassword = function(password) {
     return new Promise((resolve, reject) => {
-      bcrypt.genSalt(10, (err, salt) => {
+      bcrypt.hash(password, 10, (err, hashed) => {
         if (err) {
           reject(err);
         } else {
-          bcrypt.hash(this.password, salt, (err, encrypted) => {
-            if (err) {
-              reject(err);
-            } else {
-              this.password = encrypted;
-              resolve();
-            }
-          });
+          resolve(hashed);
         }
       });
     });
@@ -76,3 +74,5 @@ module.exports = function (connection) {
 
   return mongoose.model('User', userSchema);
 }
+
+
