@@ -1,13 +1,23 @@
-var express = require('express');
-var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
+const express = require('express');
+const path = require('path');
+const favicon = require('serve-favicon');
+const logger = require('morgan');
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
+const session = require('express-session');
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+const mongoose = require('mongoose');
+const Debug = require('debug');
+const autoIncrement = require('mongoose-auto-increment');
+const bcrypt = require('bcrypt');
 
-var users = require('./routes/users');
+const config = require('./config');
+const db = require('./lib/db')(mongoose, config.db);
+const userModel = require('./models/user')(mongoose, db, autoIncrement, bcrypt);
+const users = require('./routes/users')(Debug('newsroom-back:users-route'), express, userModel);
 
-var app = express();
+const app = express();
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));

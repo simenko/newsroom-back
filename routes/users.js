@@ -1,18 +1,20 @@
-const debug = require('debug')('newsroom-back:users-route');
+module.exports = function (debug, express, userModel) {
+  const router = express.Router();
 
-const express = require('express');
-const router = express.Router();
-
-const User = require('../models/user');
-
-router.post('/', (req, res, next) => {
-  debug(req.body)
-  User.create(req.body)
-    .then(user => {
-      res.status(201);
-      res.json(user);
-    })
-    .catch(next);
+  router.post('/', (req, res, next) => {
+    debug(req.app);
+    userModel.create(req.body)
+      .then(user => {
+        res.status(201);
+        res.json(user);
+      })
+      .catch(next);
   });
 
-module.exports = router;
+// router.get('/:id'), (req, res, next) => {
+//   debug(req.body);
+//   User.
+// }
+
+  return router;
+}
