@@ -1,3 +1,5 @@
+require('dotenv').config();
+global.Debug = require('debug');
 const express = require('express');
 const path = require('path');
 const favicon = require('serve-favicon');
@@ -25,7 +27,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(session({
-  secret: 'keyboard cat',
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false
 }));
@@ -44,9 +46,8 @@ app.use(function (req, res, next) {
 
 // error handler
 app.use(function (err, req, res, next) {
-  // set locals, only providing error in development
   res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+  res.locals.error = process.env.DEBUG ? err : {};
 
   // render the error page
   res.status(err.status || 500);
