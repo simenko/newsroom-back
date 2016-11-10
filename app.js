@@ -6,12 +6,12 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const passport = require('passport');
+const socketIo = require( "socket.io" );
 
 const connection = require('./common/db')();
 const userModel = require('./models/user')(connection);
 require('./common/auth')(passport, userModel);
 const users = require('./routes/users')(passport, userModel);
-
 
 const app = express();
 app.io = socketIo();
