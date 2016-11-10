@@ -1,4 +1,6 @@
-module.exports = function (debug, express, userModel) {
+const express = require('express');
+
+module.exports = function (passport, userModel) {
   const router = express.Router();
 
   router.post('/', (req, res, next) => {

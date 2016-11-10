@@ -1,4 +1,8 @@
-module.exports = function (mongoose, connection, autoIncrement, bcrypt) {
+const autoIncrement = require('mongoose-auto-increment');
+const bcrypt = require('bcrypt');
+const mongoose = require('mongoose');
+
+module.exports = function (connection) {
   autoIncrement.initialize(connection);
   const userSchema = new mongoose.Schema({
     name: {

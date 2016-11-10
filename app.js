@@ -6,16 +6,12 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const passport = require('passport');
-const LocalStrategy = require('passport-local').Strategy;
-const mongoose = require('mongoose');
-const Debug = require('debug');
-const autoIncrement = require('mongoose-auto-increment');
-const bcrypt = require('bcrypt');
 
-const config = require('./config');
-const db = require('./lib/db')(mongoose, config.db);
-const userModel = require('./models/user')(mongoose, db, autoIncrement, bcrypt);
-const users = require('./routes/users')(Debug('newsroom-back:users-route'), express, userModel);
+const connection = require('./lib/db')();
+const userModel = require('./models/user')(connection);
+require('./lib/auth')(passport, userModel);
+const users = require('./routes/users')(passport, userModel);
+
 
 const app = express();
 
