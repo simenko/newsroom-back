@@ -18,9 +18,12 @@ const app = express();
 app.io = socketIo();
 const connection = require('./common/db')();
 const userModel = require('./models/user')(connection);
-require('./common/sockets')(app.io, userModel)
+const storyModel = require('./models/story')(connection);
+require('./common/sockets')(app.io, userModel, storyModel)
 require('./common/auth')(passport, userModel);
 const usersRoute = require('./routes/users')(passport, userModel);
+const storiesRoute = require('./routes/stories')(passport, storyModel);
+
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
