@@ -1,7 +1,6 @@
-debug = Debug('app:sockets');
+const debug = Debug('app:sockets');
 
 module.exports = function (io, userModel) {
-  debug(io);
   io.sockets.on('connection', (socket) => {
     socket.removeAllListeners();
     let story;

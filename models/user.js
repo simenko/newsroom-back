@@ -1,3 +1,5 @@
+const debug = Debug('app:userModel');
+
 const autoIncrement = require('mongoose-auto-increment');
 const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
@@ -18,10 +20,10 @@ module.exports = function (connection) {
       required: true,
       unique: true,
       validate: {
-        validator: function (data) {
+        validator(data) {
           return validator.isEmail(data);
         },
-        message: `{VALUE} is not a valid email!`,
+        message: '{VALUE} is not a valid email!',
       },
     },
     password: {

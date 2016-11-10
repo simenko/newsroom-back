@@ -22,10 +22,10 @@ module.exports = function (connection) {
         type: String,
         required: true,
         validate: {
-          validator: function (data) {
+          validator(data) {
             return validator.isURL(data);
           },
-          message: `{VALUE} is not a valid URL!`,
+          message: '{VALUE} is not a valid URL!',
         },
       },
       description: {

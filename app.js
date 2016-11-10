@@ -7,13 +7,14 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const passport = require('passport');
-const socketIo = require( "socket.io" );
+const socketIo = require('socket.io');
 
 /**
  * App config and internal modules loading. Internal modules use dependency injection pattern between themselves, while
- * for external dependencies require() is used. 
+ * for external dependencies require() is used.
  */
 global.Debug = require('debug');
+
 const app = express();
 app.io = socketIo();
 const connection = require('./common/db')();
@@ -24,7 +25,7 @@ require('./common/auth')(passport, userModel);
 const usersRoute = require('./routes/users')(passport, userModel);
 const storiesRoute = require('./routes/stories')(passport, storyModel);
 
-//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+// app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
@@ -43,6 +44,7 @@ app.use(express.static(path.join(__dirname, 'public')));
  */
 
 app.use('/api/users', usersRoute);
+app.use('/api/stories', storiesRoute);
 
 
 // catch 404 and forward to error handler
