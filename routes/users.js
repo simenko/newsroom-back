@@ -34,10 +34,30 @@ module.exports = function (passport, userModel) {
     })(req, res, next)
   });
 
-  router.get('/protected', (req, res, next) => {
+  router.post('/logout', (req, res, next) => {
     if (req.isAuthenticated()) {
+      req.logout();
+      // TODO: remove all edit locks initialized by this user
       res.status(200);
-      res.json('ok')
+      res.json('You have logged out')
+    } else {
+      next({status: 401, message: 'You you are not logged in'})
+    }
+  });
+
+  router.put('/:id', (req, res, next) => {
+    if (req.isAuthenticated()) {
+      res.status(501);
+      res.json('not implemented')
+    } else {
+      next({status: 401, message: 'You must login to edit your account'})
+    }
+  });
+
+  router.delete('/:id', (req, res, next) => {
+    if (req.isAuthenticated() && (req.params.id === req.user._id)) {
+      res.status(501);
+      res.json('not implemented')
     } else {
       next({status: 401, message: 'unauthorized'})
     }
