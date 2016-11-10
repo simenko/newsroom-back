@@ -1,6 +1,7 @@
 const autoIncrement = require('mongoose-auto-increment');
 const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
+const validator = require('validator');
 
 module.exports = function (connection) {
   autoIncrement.initialize(connection);
@@ -18,9 +19,7 @@ module.exports = function (connection) {
       unique: true,
       validate: {
         validator: function (data) {
-
-          // http://stackoverflow.com/a/1373724
-          return /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/.test(data);
+          return validator.isEmail(data);
         },
         message: `{VALUE} is not a valid email!`,
       },
