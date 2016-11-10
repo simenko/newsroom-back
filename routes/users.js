@@ -23,13 +23,13 @@ module.exports = function (passport, userModel) {
         return next(err);
       }
       if (!user) {
-        return res.send({ success : false, message : 'authentication failed' });
+        return next({ message: 'Login incorrect'});
       }
       req.login(user, loginErr => {
         if (loginErr) {
           return next(loginErr);
         }
-        return res.send({ success : true, message : 'authentication succeeded' });
+        return res.json({ authenticated : true });
       });
     })(req, res, next)
   });
@@ -41,7 +41,7 @@ module.exports = function (passport, userModel) {
     } else {
       next({status: 401, message: 'unauthorized'})
     }
-  })
+  });
 
   return router;
 }

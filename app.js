@@ -1,5 +1,4 @@
 require('dotenv').config();
-global.Debug = require('debug');
 const express = require('express');
 const path = require('path');
 const favicon = require('serve-favicon');
@@ -10,17 +9,18 @@ const session = require('express-session');
 const passport = require('passport');
 const socketIo = require( "socket.io" );
 
-const connection = require('./common/db')();
-const userModel = require('./models/user')(connection);
-require('./common/auth')(passport, userModel);
-const users = require('./routes/users')(passport, userModel);
-
+/**
+ * App config and internal modules loading. Internal modules use dependency injection pattern between themselves, while
+ * for external dependencies require() is used. 
+ */
+global.Debug = require('debug');
 const app = express();
 app.io = socketIo();
-
-const sockets = require('./common/sockets')(app.io, userModel)
-
-// uncomment after placing your favicon in /public
+const connection = require('./common/db')();
+const userModel = require('./models/user')(connection);
+require('./common/sockets')(app.io, userModel)
+require('./common/auth')(passport, userModel);
+const usersRoute = require('./routes/users')(passport, userModel);
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
@@ -35,7 +35,12 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/api/users', users);
+/**
+ * ROUTES
+ */
+
+app.use('/api/users', usersRoute);
+
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
