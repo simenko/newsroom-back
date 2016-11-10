@@ -7,13 +7,16 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 const passport = require('passport');
 
-const connection = require('./lib/db')();
+const connection = require('./common/db')();
 const userModel = require('./models/user')(connection);
-require('./lib/auth')(passport, userModel);
+require('./common/auth')(passport, userModel);
 const users = require('./routes/users')(passport, userModel);
 
 
 const app = express();
+app.io = socketIo();
+
+const sockets = require('./common/sockets')(app.io, userModel)
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
