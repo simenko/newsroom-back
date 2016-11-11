@@ -42,6 +42,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 /**
  * ROUTES
  */
+app.use('/', (req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', process.env.FRONTEND_SERVER_URI);
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,Content-Type');
+  next();
+});
+
 
 app.use('/api/users', usersRoute);
 app.use('/api/stories', storiesRoute);

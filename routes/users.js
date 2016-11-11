@@ -8,13 +8,18 @@ module.exports = function (passport, userModel) {
   router.post('/register', (req, res, next) => {
     userModel.create(req.body, (err, user) => {
       if (err) {
+        err.status = 400;
         next(err);
       } else {
         req.login(user, (err, res) => {
           if (err) next(err);
         });
         res.status(201);
-        res.json(user);
+        res.json({
+          id: user._id,
+        name: user.name,
+        role: user.role,
+        });
       }
     })
   });
@@ -46,7 +51,7 @@ module.exports = function (passport, userModel) {
     }
   });
 
-  router.put('/:id', (req, res, next) => {
+  router.put('/', (req, res, next) => {
     if (req.isAuthenticated()) {
       res.status(501);
       res.json('not implemented');
@@ -55,8 +60,8 @@ module.exports = function (passport, userModel) {
     }
   });
 
-  router.delete('/:id', (req, res, next) => {
-    if (req.isAuthenticated() && (req.params.id === req.user._id)) {
+  router.delete('/', (req, res, next) => {
+    if (req.isAuthenticated()) {
       res.status(501);
       res.json('not implemented');
     } else {
