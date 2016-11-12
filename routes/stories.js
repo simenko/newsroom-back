@@ -20,8 +20,8 @@ module.exports = function (passport, storyModel) {
     }
   });
 
-  router.get('/:id', (req, res, next) => {
-    storyModel.findById(req.params.id, (err, story) => {
+  router.get('/:_id', (req, res, next) => {
+    storyModel.findById(req.params._id, (err, story) => {
       if (err) {
         next(err);
       } else if (req.isAuthenticated() || story.stage === 'published') {
@@ -50,8 +50,8 @@ module.exports = function (passport, storyModel) {
     }
   });
 
-  router.put('/:id', (req, res, next) => {
-    storyModel.findById(req.params.id, (err, story) => {
+  router.put('/:_id', (req, res, next) => {
+    storyModel.findById(req.params._id, (err, story) => {
       if (err) {
         next(err);
       } else if (req.isAuthenticated() && (
@@ -70,12 +70,12 @@ module.exports = function (passport, storyModel) {
     });
   });
 
-  router.put('/:id', (req, res, next) => {
-    storyModel.findById(req.params.id, (err, story) => {
+  router.put('/:_id', (req, res, next) => {
+    storyModel.findById(req.params._id, (err, story) => {
       if (err) {
         next(err);
       } else if (req.isAuthenticated() && (req.user.role === 'editor')) {
-        storyModel.findByIdAndRemove(req.params.id, (err, res) => {
+        storyModel.findByIdAndRemove(req.params._id, (err, res) => {
           if (err) {
             next(err);
           } else {

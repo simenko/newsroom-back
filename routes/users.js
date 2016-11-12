@@ -16,7 +16,7 @@ module.exports = function (passport, userModel) {
         });
         res.status(201);
         res.json({
-          id: user._id,
+          _id: user._id,
         name: user.name,
         role: user.role,
         });
