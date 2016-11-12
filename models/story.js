@@ -7,10 +7,10 @@ const validator = require('validator');
 module.exports = function (connection) {
   autoIncrement.initialize(connection);
   const storySchema = new mongoose.Schema({
-    working_title: {
+    title: {
       type: String,
       required: true,
-      minlength: 16,
+      minlength: 1,
       maxlength: 200,
     },
     description: {
@@ -20,7 +20,7 @@ module.exports = function (connection) {
     assets: [{
       url: {
         type: String,
-        required: true,
+        // required: true,
         validate: {
           validator(data) {
             return validator.isURL(data);
@@ -33,19 +33,17 @@ module.exports = function (connection) {
         maxlength: 500,
       },
     }],
-    blocks: [{
-      content: String,
-      updated_at: Date,
+    content: {
+      type: String,
+    },
+    history: [{
+      timestamp: Date,
       author: {
         type: Number, ref: 'User'
       },
-      snapshots: [{
-        content: String,
-        updated_at: Date,
-        author: {
-          type: Number, ref: 'User'
-        }
-      }]
+      patch: {
+        type: String,
+      },
     }],
     stage: {
       type: String,
