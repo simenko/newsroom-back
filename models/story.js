@@ -72,6 +72,7 @@ module.exports = function (connection) {
     if (!this.created_at) {
       this.created_at = this.updated_at;
     }
+    next();
     /**
      *  TODO: Possible checks:
      *  1. deadline must be in future

@@ -33,7 +33,7 @@ module.exports = function (passport, userModel) {
           if (loginErr) {
             next(loginErr);
           } else {
-            res.json({authenticated: true});
+            res.json(user);
           }
         });
       }
@@ -45,7 +45,7 @@ module.exports = function (passport, userModel) {
       req.logout();
       // TODO: remove all edit locks initialized by this user
       res.status(200);
-      res.json('You have logged out')
+      res.json('You have logged out');
     } else {
       next({ status: 401, message: 'You you are not logged in' });
     }

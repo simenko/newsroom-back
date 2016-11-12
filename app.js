@@ -11,8 +11,7 @@ const socketIo = require('socket.io');
 const MongoStore = require('connect-mongo')(session);
 
 /**
- * App config and internal modules loading. Internal modules use dependency injection pattern between themselves, while
- * for external dependencies require() is used.
+ * App config and internal modules loading.
  */
 global.Debug = require('debug');
 

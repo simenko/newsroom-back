@@ -35,8 +35,8 @@ module.exports = function (passport, storyModel) {
 
   router.get('/', (req, res, next) => {
     // TODO: limits and complex queries
-    if (req.isAuthenticated()) {
-      storyModel.find({}, '_id working_title stage assignee locked_by created_by deadline_at created_at updated_at published_at', (err, stories) => {
+    // if (req.isAuthenticated()) {
+      storyModel.find({}, '_id title stage assignee locked_by created_by deadline_at created_at updated_at published_at', (err, stories) => {
         if (err) {
           next(err);
         } else {
@@ -44,10 +44,10 @@ module.exports = function (passport, storyModel) {
           res.json(stories);
         }
       });
-    } else {
-      // TODO: format published stories for public view
-      next({ status: 404 });
-    }
+    // } else {
+    //   // TODO: format published stories for public view
+    //   next({ status: 404 });
+    // }
   });
 
   router.put('/:_id', (req, res, next) => {
@@ -55,10 +55,10 @@ module.exports = function (passport, storyModel) {
       if (err) {
         next(err);
       } else if (req.isAuthenticated() && (
-        story.assignee === ''
+        !story.assignee
         || story.assignee === 'req.user._id'
         || req.user.role === 'editor')) {
-        storyModel.update(req.body, (err, res) => {
+        storyModel.update(req.body, (err, story) => {
           if (err) {
             next(err);
           } else {

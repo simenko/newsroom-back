@@ -73,7 +73,6 @@ module.exports = function (connection) {
       } else {
         callback(null, hashed);
       }
-      ;
     });
   };
 
