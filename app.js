@@ -8,6 +8,7 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 const passport = require('passport');
 const socketIo = require('socket.io');
+const MongoStore = require('connect-mongo')(session);
 
 /**
  * App config and internal modules loading. Internal modules use dependency injection pattern between themselves, while
@@ -31,9 +32,13 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(session({
+  store: new MongoStore({ mongooseConnection: connection.connection }),
   secret: process.env.SESSION_SECRET,
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: false,
+  cookie: {
+    maxAge: 600000,
+  },
 }));
 app.use(passport.initialize());
 app.use(passport.session());
