@@ -22,6 +22,8 @@ module.exports = function (passport, userModel) {
       userModel.findOne({ email }, (err, user) => {
         if (err) {
           callback(err);
+        } else if (!user) {
+          callback({ status: 401 });
         } else {
           user.checkPassword(password, (err, res) => {
             if (err) {

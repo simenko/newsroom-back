@@ -17,11 +17,11 @@ module.exports = function (passport, userModel) {
         res.status(201);
         res.json({
           _id: user._id,
-        name: user.name,
-        role: user.role,
+          name: user.name,
+          role: user.role,
         });
       }
-    })
+    });
   });
 
   router.post('/login', (req, res, next) => {
@@ -42,6 +42,7 @@ module.exports = function (passport, userModel) {
 
   router.post('/logout', (req, res, next) => {
     if (req.isAuthenticated()) {
+      req.session.destroy();
       req.logout();
       // TODO: remove all edit locks initialized by this user
       res.status(200);

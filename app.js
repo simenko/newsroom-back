@@ -29,19 +29,17 @@ const storiesRoute = require('./routes/stories')(passport, storyModel);
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(cookieParser());
 app.use(session({
   store: new MongoStore({ mongooseConnection: connection.connection }),
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  cookie: {
-    maxAge: 600000,
-  },
 }));
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(express.static(path.join(__dirname, 'public')));
+
 
 /**
  * ROUTES

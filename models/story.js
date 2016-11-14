@@ -67,7 +67,7 @@ module.exports = function (connection) {
 
   storySchema.plugin(autoIncrement.plugin, 'Story');
 
-  storySchema.pre('save', function (next, done) {
+  storySchema.pre('save', function(next, done) {
     this.updated_at = new Date();
     if (!this.created_at) {
       this.created_at = this.updated_at;

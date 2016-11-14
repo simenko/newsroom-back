@@ -29,7 +29,7 @@ module.exports = function (connection) {
     password: {
       type: String,
       required: true,
-      minlength: 8,
+      minlength: 1,
     },
     role: {
       type: String,
@@ -60,9 +60,11 @@ module.exports = function (connection) {
     bcrypt.compare(password, this.password, (err, res) => {
       if (err) {
         callback(err);
-        return;
+      } else if (!res) {
+        callback({ status: 401 });
+      } else {
+        callback(null, res);
       }
-      callback(null, res);
     });
   };
 

@@ -36,7 +36,11 @@ module.exports = function (passport, storyModel) {
   router.get('/', (req, res, next) => {
     // TODO: limits and complex queries
     // if (req.isAuthenticated()) {
-      storyModel.find({}, '_id title stage assignee locked_by created_by deadline_at created_at updated_at published_at', (err, stories) => {
+    storyModel.find({}, '_id title stage assignee locked_by created_by deadline_at created_at updated_at published_at')
+      .populate('created_by', 'name')
+      .populate('assignee', 'name')
+      .populate('locked_by', 'name')
+      .exec((err, stories) => {
         if (err) {
           next(err);
         } else {
