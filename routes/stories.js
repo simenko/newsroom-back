@@ -16,7 +16,7 @@ module.exports = function (passport, storyModel) {
         }
       });
     } else {
-      next({ status: 401, message: 'You must be logged in to create stories' });
+      next({status: 401, message: 'You must be logged in to create stories'});
     }
   });
 
@@ -80,6 +80,23 @@ module.exports = function (passport, storyModel) {
         next(err);
       } else if (req.isAuthenticated() && (req.user.role === 'editor')) {
         storyModel.findByIdAndRemove(req.params._id, (err, res) => {
+          if (err) {
+            next(err);
+          } else {
+            res.status(200);
+            res.end();
+          }
+        });
+      }
+    });
+  });
+
+  router.delete('/:_id', (req, res, next) => {
+    storyModel.findById(req.params._id, (err, story) => {
+      if (err) {
+        next(err);
+      } else if (req.isAuthenticated()) {
+        storyModel.findByIdAndRemove(req.params._id, (err, story) => {
           if (err) {
             next(err);
           } else {

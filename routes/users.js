@@ -5,6 +5,32 @@ const express = require('express');
 module.exports = function (passport, userModel) {
   const router = express.Router();
 
+
+  router.get('/', (req, res, next) => {
+    if (!req.isAuthenticated()) {
+      next({ status: 401 });
+    } else {
+      res.status(200);
+      userModel.find({}, (err, users) => {
+        if (err) {
+          next(err);
+        } else {
+          res.status(200);
+          res.json(users);
+        }
+      });
+    }
+  });
+
+  router.get('/:_id', (req, res, next) => {
+    if (!req.isAuthenticated()) {
+      next({ status: 401 });
+    } else {
+      res.status(200);
+      res.json(req.user);
+    }
+  });
+
   router.post('/register', (req, res, next) => {
     userModel.create(req.body, (err, user) => {
       if (err) {
@@ -57,7 +83,7 @@ module.exports = function (passport, userModel) {
       res.status(501);
       res.json('not implemented');
     } else {
-      next({status: 401, message: 'You must login to edit your account'})
+      next({ status: 401, message: 'You must login to edit your account' })
     }
   });
 
