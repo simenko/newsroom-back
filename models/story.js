@@ -11,8 +11,6 @@ module.exports = function (connection) {
   const storySchema = new mongoose.Schema({
     title: {
       type: String,
-      required: true,
-      minlength: 1,
       maxlength: 200,
     },
     assets: [{
