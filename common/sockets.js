@@ -1,21 +1,38 @@
 const debug = Debug('app:sockets');
+const timeout = 10000;
+const activeStories = {};
 
-module.exports = function (io, userModel) {
+const updateLocks = function (story, client) {
+  Object.keys(activeStories)
+    .forEach((key) => {
+      if (activeStories[key].lastActivityAt < Date.now() - timeout) {
+        delete activeStories[key];
+      }
+    });
+  if (!activeStories[story]) {
+    activeStories[story] = { lockedBy: client };
+  }
+  activeStories[story].lastActivityAt = Date.now();
+};
+
+module.exports = function (io) {
   io.sockets.on('connection', (socket) => {
     socket.removeAllListeners();
-    let story;
-    socket.on('story', (storyName) => {
-      story = storyName;
-      socket.join(story);
+
+    socket.on('startEditing', (storyName) => {
+      socket.story = storyName;
+      updateLocks(socket.story, socket.id);
+      socket.join(socket.story);
     });
-    socket.on('updateVersion', (diff) => {
-      io.sockets.in(story).emit('updateVersion', diff);
-    });
-    socket.on('editRequest', (data) => {
-      io.sockets.in(story).emit('editRequest', data);
-    });
-    socket.on('changes', (data) => {
-      io.sockets.in(story).emit('changes', data);
+
+    socket.on('update', (diff) => {
+      updateLocks(socket.story, socket.id);
+      if (activeStories[socket.story].lockedBy !== socket.id) {
+        socket.emit('lockedBy', activeStories[socket.story].lockedBy);
+      } else {
+        socket.broadcast.to(socket.story)
+          .emit('changes', diff);
+      }
     });
   });
 };
