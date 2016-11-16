@@ -1,3 +1,5 @@
+/* global Debug */
+
 debug = Debug('app:auth');
 
 const LocalStrategy = require('passport-local').Strategy;
@@ -20,20 +22,18 @@ module.exports = function (passport, userModel) {
       passReqToCallback: true
     }, (req, email, password, callback) => {
       userModel.findOne({ email }, (err, user) => {
-        if (err) {
-          callback(err);
-        } else if (!user) {
-          callback({ status: 401 });
-        } else {
-          user.checkPassword(password, (err, res) => {
-            if (err) {
-              callback(err);
-            } else {
-              callback(null, user);
-            }
-          });
-        }
+        if (err) return callback(err);
+        if (!user) return callback({ status: 401 });
+        user.checkPassword(password, (err, res) => {
+          if (err) return callback(err);
+          return callback(null, user);
+        });
       });
     })
   );
+
+  passport.check = (req, res, next) => {
+    if (!req.isAuthenticated()) return next({ status: 401 });
+    return next();
+  };
 };

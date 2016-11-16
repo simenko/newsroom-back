@@ -1,3 +1,5 @@
+/* global Debug */
+
 const debug = Debug('app:userModel');
 
 const autoIncrement = require('mongoose-auto-increment');
@@ -42,43 +44,32 @@ module.exports = function (connection) {
 
   userSchema.plugin(autoIncrement.plugin, 'User');
 
-  userSchema.pre('save', function (next, done) {
+  userSchema.pre('save', function (next, callback) {
     this.updated_at = new Date();
     if (!this.created_at) {
       this.created_at = this.updated_at;
     }
     userSchema.methods.hashPassword(this.password, (err, hashedPass) => {
-      if (err) {
-        done(err);
-      }
+      if (err) return callback(err);
       this.password = hashedPass;
-      next();
+      return next();
     });
   });
 
   userSchema.methods.checkPassword = function (password, callback) {
     bcrypt.compare(password, this.password, (err, res) => {
-      if (err) {
-        callback(err);
-      } else if (!res) {
-        callback({ status: 401 });
-      } else {
-        callback(null, res);
-      }
+      if (err) return callback(err);
+      if (!res) return callback({ status: 401 });
+      return callback(null, res);
     });
   };
 
   userSchema.methods.hashPassword = function (password, callback) {
     bcrypt.hash(password, 10, (err, hashed) => {
-      if (err) {
-        callback(err);
-      } else {
-        callback(null, hashed);
-      }
+      if (err) return callback(err);
+      return callback(null, hashed);
     });
   };
 
   return mongoose.model('User', userSchema);
-}
-
-
+};

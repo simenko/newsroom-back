@@ -1,4 +1,6 @@
-const debug = Debug('app:storyModel')
+/* global Debug */
+
+const debug = Debug('app:storyModel');
 
 const autoIncrement = require('mongoose-auto-increment');
 const mongoose = require('mongoose');
@@ -12,10 +14,6 @@ module.exports = function (connection) {
       required: true,
       minlength: 1,
       maxlength: 200,
-    },
-    description: {
-      type: String,
-      maxlength: 1000,
     },
     assets: [{
       url: {
@@ -67,7 +65,7 @@ module.exports = function (connection) {
 
   storySchema.plugin(autoIncrement.plugin, 'Story');
 
-  storySchema.pre('save', function(next, done) {
+  storySchema.pre('save', function (next, callback) {
     this.updated_at = new Date();
     if (!this.created_at) {
       this.created_at = this.updated_at;
@@ -82,7 +80,45 @@ module.exports = function (connection) {
      */
   });
 
+  storySchema.statics.getPublishedStoriesContent = function (callback) {
+    return this.find({ stage: 'published' }, '_id title content assignee published_at')
+      .populate('assignee', 'name')
+      .exec((err, stories) => {
+        if (err) return callback(err);
+        return callback(null, stories);
+      });
+  };
+
+  storySchema.statics.getStoriesMetadata = function (callback) {
+    return this.find({}, '-content -history')
+      .populate('created_by', 'name')
+      .populate('assignee', 'name')
+      .populate('locked_by', 'name')
+      .exec((err, stories) => {
+        if (err) return callback(err);
+        return callback(null, stories);
+      });
+  };
+
+  storySchema.statics.getFullStory = function (_id, callback) {
+    return this.findById(_id)
+      .populate('created_by', 'name')
+      .populate('assignee', 'name')
+      .populate('locked_by', 'name')
+      .exec((err, story) => {
+        if (err) return callback(err);
+        return callback(null, story);
+      });
+  };
+
+  storySchema.statics.getPublishedStoryContent = function (_id, callback) {
+    return this.findOne({ _id, stage: 'published' }, '_id title content assignee published_at')
+      .populate('assignee', 'name')
+      .exec((err, story) => {
+        if (err) return callback(err);
+        return callback(null, story);
+      });
+  };
+
   return mongoose.model('Story', storySchema);
-}
-
-
+};
