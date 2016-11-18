@@ -26,10 +26,24 @@ module.exports = function (io, session) {
     const username = socket.request.session.passport.user.name;
     socket.removeAllListeners();
 
-    socket.on('startEditing', (storyName) => {
+    socket.on('joinStory', (storyName) => {
       socket.story = storyName;
       socket.join(socket.story);
     });
+
+    socket.on('editRequest', () => {
+      updateLocks(socket.story, username);
+      if(activeStories[socket.story].lockedBy !== username) {
+        socket.emit('lockedBy', activeStories[socket.story].lockedBy);
+        socket.broadcast.to(activeStories[socket.story].lockedBy).emit('editRequest', username);
+      } else {
+        socket.emit('editingGranted');
+      }
+    });
+
+    socket.on('stopEditing', () => {
+      delete activeStories[socket.story];
+    })
 
     socket.on('update', (diff) => {
       updateLocks(socket.story, socket.id);
