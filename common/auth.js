@@ -6,11 +6,11 @@ const LocalStrategy = require('passport-local').Strategy;
 
 module.exports = function (passport, userModel) {
   passport.serializeUser((user, callback) => {
-    callback(null, user.id);
+    callback(null, { id: user.id, name: user.name });
   });
 
-  passport.deserializeUser((id, callback) => {
-    userModel.findById(id, (err, user) => {
+  passport.deserializeUser((user, callback) => {
+    userModel.findById(user.id, (err, user) => {
       callback(err, user);
     });
   });

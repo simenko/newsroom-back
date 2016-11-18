@@ -4,22 +4,28 @@ const path = require('path');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
-const session = require('express-session');
+const Session = require('express-session');
 const passport = require('passport');
 const socketIo = require('socket.io');
-const MongoStore = require('connect-mongo')(session);
+const MongoStore = require('connect-mongo')(Session);
 
 /**
  * App config and internal modules loading.
  */
 global.Debug = require('debug');
-
+const connection = require('./common/db')();
 const app = express();
 app.io = socketIo();
-const connection = require('./common/db')();
+const session = Session({
+  store: new MongoStore({ mongooseConnection: connection.connection }),
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+});
+
 const userModel = require('./models/user')(connection);
 const storyModel = require('./models/story')(connection);
-require('./common/sockets')(app.io, userModel, storyModel);
+require('./common/sockets')(app.io, session, storyModel);
 require('./common/auth')(passport, userModel);
 const usersRoute = require('./routes/users')(passport, userModel);
 const storiesRoute = require('./routes/stories')(passport, storyModel);
@@ -31,12 +37,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cookieParser());
-app.use(session({
-  store: new MongoStore({ mongooseConnection: connection.connection }),
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
-}));
+app.use(session);
 app.use(passport.initialize());
 app.use(passport.session());
 

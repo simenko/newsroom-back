@@ -15,8 +15,13 @@ const updateLocks = function (story, client) {
   activeStories[story].lastActivityAt = Date.now();
 };
 
-module.exports = function (io) {
+module.exports = function (io, session) {
+  io.use(function(socket, next){
+    // Wrap the express middleware
+    session(socket.request, {}, next);
+  });
   io.sockets.on('connection', (socket) => {
+    const username = socket.request.session.passport.user.name;
     socket.removeAllListeners();
 
     socket.on('startEditing', (storyName) => {
