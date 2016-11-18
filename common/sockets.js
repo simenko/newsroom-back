@@ -2,7 +2,7 @@ const debug = Debug('app:sockets');
 const timeout = 10000;
 const activeStories = {};
 
-const updateLocks = function (story, client) {
+const updateLocks = function (story, user) {
   Object.keys(activeStories)
     .forEach((key) => {
       if (activeStories[key].lastActivityAt < Date.now() - timeout) {
@@ -10,9 +10,9 @@ const updateLocks = function (story, client) {
       }
     });
   if (!activeStories[story]) {
-    activeStories[story] = { lockedBy: client };
+    activeStories[story] = { lockedBy: user };
   }
-  if (activeStories[story].lockedBy === client) {
+  if (activeStories[story].lockedBy === user) {
     activeStories[story].lastActivityAt = Date.now();
   }
 };
@@ -23,7 +23,15 @@ module.exports = function (io, session, storyModel) {
     session(socket.request, {}, next);
   });
   io.sockets.on('connection', (socket) => {
-    const username = socket.request.session.passport.user.name;
+    const user = {
+      id: socket.id,
+    };
+    try {
+      user.name = socket.request.session.passport.user.name;
+    }
+    catch (error) {
+      debug(error);
+    }
     socket.removeAllListeners();
 
     socket.on('joinStory', (storyName) => {
