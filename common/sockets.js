@@ -12,7 +12,9 @@ const updateLocks = function (story, client) {
   if (!activeStories[story]) {
     activeStories[story] = { lockedBy: client };
   }
-  activeStories[story].lastActivityAt = Date.now();
+  if (activeStories[story].lockedBy === client) {
+    activeStories[story].lastActivityAt = Date.now();
+  }
 };
 
 module.exports = function (io, session) {
@@ -26,7 +28,6 @@ module.exports = function (io, session) {
 
     socket.on('startEditing', (storyName) => {
       socket.story = storyName;
-      updateLocks(socket.story, socket.id);
       socket.join(socket.story);
     });
 
