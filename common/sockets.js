@@ -32,10 +32,10 @@ module.exports = function (io, session) {
     });
 
     socket.on('editRequest', () => {
-      updateLocks(socket.story, username);
-      if(activeStories[socket.story].lockedBy !== username) {
-        socket.emit('lockedBy', activeStories[socket.story].lockedBy);
-        socket.broadcast.to(activeStories[socket.story].lockedBy).emit('editRequest', username);
+      updateLocks(socket.story, user);
+      if (activeStories[socket.story].lockedBy !== user) {
+        socket.emit('lockedBy', activeStories[socket.story].lockedBy.name);
+        socket.broadcast.to(activeStories[socket.story].lockedBy.id).emit('editRequest', user.name);
       } else {
         socket.emit('editingGranted');
       }
@@ -46,9 +46,9 @@ module.exports = function (io, session) {
     })
 
     socket.on('update', (diff) => {
-      updateLocks(socket.story, socket.id);
-      if (activeStories[socket.story].lockedBy !== socket.id) {
-        socket.emit('lockedBy', activeStories[socket.story].lockedBy);
+      updateLocks(socket.story, user);
+      if (activeStories[socket.story].lockedBy !== user) {
+        socket.emit('lockedBy', activeStories[socket.story].lockedBy.name);
       } else {
         socket.broadcast.to(socket.story)
           .emit('changes', diff);
