@@ -78,6 +78,18 @@ module.exports = function (connection) {
      */
   });
 
+  storySchema.pre('update', function (next, callback) {
+    this.update({}, { $set: { updatedAt: new Date() } });
+    next();
+    /**
+     *  TODO: Possible checks:
+     *  1. deadline must be in future
+     *  2. Only editors can shift deadline
+     *  3. Only editors can lock and unlock
+     *
+     */
+  });
+
   storySchema.statics.getPublishedStoriesContent = function (callback) {
     return this.find({ stage: 'published' }, '_id title content assignee published_at')
       .populate('assignee', 'name')

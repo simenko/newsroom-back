@@ -17,8 +17,8 @@ const updateLocks = function (story, client) {
   }
 };
 
-module.exports = function (io, session) {
-  io.use(function(socket, next){
+module.exports = function (io, session, storyModel) {
+  io.use((socket, next) => {
     // Wrap the express middleware
     session(socket.request, {}, next);
   });
@@ -50,8 +50,10 @@ module.exports = function (io, session) {
       if (activeStories[socket.story].lockedBy !== user) {
         socket.emit('lockedBy', activeStories[socket.story].lockedBy.name);
       } else {
-        socket.broadcast.to(socket.story)
-          .emit('changes', diff);
+        storyModel.findByIdAndUpdate(diff._id, diff, (err, updatedStory) => {
+          socket.broadcast.to(socket.story)
+            .emit('changes', updatedStory);
+        });
       }
     });
   });
