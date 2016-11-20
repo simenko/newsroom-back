@@ -14,10 +14,11 @@ const MongoStore = require('connect-mongo')(Session);
  */
 global.Debug = require('debug');
 const connection = require('./common/db')();
+const mongoStore = new MongoStore({ mongooseConnection: connection.connection })
 const app = express();
 app.io = socketIo();
 const session = Session({
-  store: new MongoStore({ mongooseConnection: connection.connection }),
+  store: mongoStore,
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
@@ -25,7 +26,7 @@ const session = Session({
 
 const userModel = require('./models/user')(connection);
 const storyModel = require('./models/story')(connection);
-require('./common/sockets')(app.io, session, storyModel);
+require('./common/sockets')(app.io, session, mongoStore, passport, storyModel);
 require('./common/auth')(passport, userModel);
 const usersRoute = require('./routes/users')(passport, userModel);
 const storiesRoute = require('./routes/stories')(passport, storyModel);

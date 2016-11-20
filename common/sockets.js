@@ -1,3 +1,5 @@
+const passportSocketIo = require('passport.socketio');
+
 const debug = Debug('app:sockets');
 const timeout = 10000;
 const activeStories = {};
@@ -17,21 +19,31 @@ const updateLocks = function (story, user) {
   }
 };
 
-module.exports = function (io, session, storyModel) {
+module.exports = function (io, session, mongoStore, passport, storyModel) {
   io.use((socket, next) => {
-    // Wrap the express middleware
     session(socket.request, {}, next);
   });
+  io.use(passportSocketIo.authorize({
+    secret: process.env.SESSION_SECRET,
+    store: mongoStore,
+    success: (data, accept) => accept(),
+    fail: (data, message, error, accept) => {
+      if (error) {
+        throw new Error(message);
+      }
+      debug('failed connection to socket.io:', message);
+      if (error) {
+        accept(new Error(message));
+      }
+    },
+  }));
+
   io.sockets.on('connection', (socket) => {
+    debug(socket.request.isAuthenticated());
     const user = {
       id: socket.id,
+      name: socket.request.session.passport.user.name,
     };
-    try {
-      user.name = socket.request.session.passport.user.name;
-    }
-    catch (error) {
-      debug(error);
-    }
     socket.removeAllListeners();
 
     socket.on('joinStory', (storyName) => {
