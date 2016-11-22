@@ -47,23 +47,16 @@ module.exports = function (passport, storyModel) {
   });
 
   router.put('/:_id', passport.check, (req, res, next) => {
-    delete req.body._id;
-    req.body.updated_at = Date.now();
-    storyModel.findOneAndUpdate(
-      { _id: req.params._id },
-      req.body,
-      { runValidators: true, new: true },
-      (err, updatedStory) => {
-        if (err) return next(err);
-        if (!updatedStory) return next({ status: 404 });
-        res.json(updatedStory);
-      });
+    storyModel.updateStory(req.params._id, req.body, req.session.passport.user, (err, updatedStory) => {
+      if (err) return next(err);
+      if (!updatedStory) return next({ status: 404 });
+      res.json(updatedStory);
+    });
   });
 
   router.delete('/:_id', passport.check, (req, res, next) => {
-    storyModel.findByIdAndRemove(req.params._id, (err, story) => {
+    storyModel.findByIdAndRemove(req.params._id, (err, result) => {
       if (err) return next(err);
-      if (!story) return next({ status: 404 });
       res.end();
     });
   });

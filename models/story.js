@@ -71,6 +71,15 @@ module.exports = function (connection) {
       });
   };
 
+  storySchema.statics.getPublishedStoryContent = function (_id, callback) {
+    return this.findOne({ _id, stage: 'published' }, '_id title content created_by published_at')
+      .populate('created_by', 'name')
+      .exec((err, story) => {
+        if (err) return callback(err);
+        return callback(null, story);
+      });
+  };
+
   storySchema.statics.getStoriesMetadata = function (callback) {
     return this.find({}, '-content -history')
       .populate('created_by', 'name')
@@ -91,13 +100,25 @@ module.exports = function (connection) {
       });
   };
 
-  storySchema.statics.getPublishedStoryContent = function (_id, callback) {
-    return this.findOne({ _id, stage: 'published' }, '_id title content assignee published_at')
-      .populate('assignee', 'name')
-      .exec((err, story) => {
-        if (err) return callback(err);
-        return callback(null, story);
-      });
+  storySchema.statics.updateStory = function (_id, data, user, callback) {
+    if (data.locked_by && user.role !== 'editor') return callback({ status: 403 });
+    this.findById(_id, (err, story) => {
+      if (err) return callback(err);
+      if (!story) return callback({ status: 404 });
+      delete data._id;
+      data.updated_at = Date.now();
+      if (data.stage === 'published' && !story.published_at) {
+        data.published_at = data.updated_at;
+      }
+      if (data.locked_by) data.locked_by = data.locked_by._id;
+      story.update(data,
+        { runValidators: true, new: true },
+        (err, updatedStory) => {
+          if (err) return callback(err);
+          if (!updatedStory) return next({ status: 500 });
+          return callback(null, updatedStory);
+        });
+    });
   };
 
   return mongoose.model('Story', storySchema);

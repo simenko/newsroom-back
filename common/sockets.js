@@ -70,7 +70,11 @@ module.exports = function (io, session, mongoStore, passport, storyModel) {
       if (activeStories[socket.story].lockedBy.name !== user.name) {
         socket.emit('lockedBy', activeStories[socket.story].lockedBy.name);
       } else {
-        storyModel.findByIdAndUpdate(diff._id, diff, (err, updatedStory) => {
+        storyModel.updateStory(diff._id, diff, user, (err, updatedStory) => {
+          if (err) {
+            socket.emit('fail', err);
+            return;
+          }
           socket.broadcast.to(socket.story)
             .emit('changes', updatedStory);
         });
