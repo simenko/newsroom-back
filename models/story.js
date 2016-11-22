@@ -99,9 +99,7 @@ module.exports = function (connection) {
         data.published_at = data.updated_at;
       }
       if (data.locked_by) data.locked_by = data.locked_by._id;
-      story.update(data,
-        { runValidators: true, new: true },
-        (err, updatedStory) => {
+      story.save(data, (err, updatedStory) => {
           if (err) return callback(err);
           if (!updatedStory) return next({ status: 500 });
           return callback(null, updatedStory);
