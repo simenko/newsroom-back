@@ -14,7 +14,7 @@ const MongoStore = require('connect-mongo')(Session);
  */
 global.Debug = require('debug');
 const connection = require('./common/db')();
-const mongoStore = new MongoStore({ mongooseConnection: connection.connection })
+const mongoStore = new MongoStore({ mongooseConnection: connection.connection });
 const app = express();
 app.io = socketIo();
 const session = Session({

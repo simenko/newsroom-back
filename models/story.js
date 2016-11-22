@@ -41,25 +41,11 @@ module.exports = function (connection) {
       this.created_at = this.updated_at;
     }
     next();
-    /**
-     *  TODO: Possible checks:
-     *  1. deadline must be in future
-     *  2. Only editors can shift deadline
-     *  3. Only editors can lock and unlock
-     *
-     */
   });
 
   storySchema.pre('update', function (next, callback) {
     this.update({}, { $set: { updatedAt: new Date() } });
     next();
-    /**
-     *  TODO: Possible checks:
-     *  1. deadline must be in future
-     *  2. Only editors can shift deadline
-     *  3. Only editors can lock and unlock
-     *
-     */
   });
 
   storySchema.statics.getPublishedStoriesContent = function (callback) {

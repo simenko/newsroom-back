@@ -63,7 +63,7 @@ module.exports = function (io, session, mongoStore, passport, storyModel) {
 
     socket.on('stopEditing', () => {
       delete activeStories[socket.story];
-    })
+    });
 
     socket.on('update', (diff) => {
       updateLocks(socket.story, user);
