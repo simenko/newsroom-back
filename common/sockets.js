@@ -39,10 +39,10 @@ module.exports = function (io, session, mongoStore, passport, storyModel) {
   }));
 
   io.sockets.on('connection', (socket) => {
-    debug(socket.request.isAuthenticated());
     const user = {
       id: socket.id,
       name: socket.request.session.passport.user.name,
+      role: socket.request.session.passport.user.role,
     };
     socket.removeAllListeners();
 
