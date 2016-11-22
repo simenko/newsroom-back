@@ -63,8 +63,9 @@ module.exports = function (connection) {
   });
 
   storySchema.statics.getPublishedStoriesContent = function (callback) {
-    return this.find({ stage: 'published' }, '_id title content assignee published_at')
-      .populate('assignee', 'name')
+    return this.find({ stage: 'published' }, '_id title content created_by published_at')
+      .sort({ published_at: 'descending' })
+      .populate('created_by', 'name')
       .exec((err, stories) => {
         if (err) return callback(err);
         return callback(null, stories);
@@ -81,7 +82,8 @@ module.exports = function (connection) {
   };
 
   storySchema.statics.getStoriesMetadata = function (callback) {
-    return this.find({}, '-content -history')
+    return this.find({}, '-content')
+      .sort({ created_at: 'descending' })
       .populate('created_by', 'name')
       .populate('locked_by', 'name')
       .exec((err, stories) => {
