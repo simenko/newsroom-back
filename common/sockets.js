@@ -53,7 +53,7 @@ module.exports = function (io, session, mongoStore, passport, storyModel) {
 
     socket.on('editRequest', () => {
       updateLocks(socket.story, user);
-      if (activeStories[socket.story].lockedBy !== user) {
+      if (activeStories[socket.story].lockedBy.name !== user.name) {
         socket.emit('lockedBy', activeStories[socket.story].lockedBy.name);
         socket.broadcast.to(activeStories[socket.story].lockedBy.id).emit('editRequest', user.name);
       } else {
@@ -67,7 +67,7 @@ module.exports = function (io, session, mongoStore, passport, storyModel) {
 
     socket.on('update', (diff) => {
       updateLocks(socket.story, user);
-      if (activeStories[socket.story].lockedBy !== user) {
+      if (activeStories[socket.story].lockedBy.name !== user.name) {
         socket.emit('lockedBy', activeStories[socket.story].lockedBy.name);
       } else {
         storyModel.findByIdAndUpdate(diff._id, diff, (err, updatedStory) => {
