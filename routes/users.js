@@ -4,58 +4,33 @@ const debug = Debug('app:usersRoute');
 
 const express = require('express');
 
-const filterUser = function (user) {
-  return {
-    _id: user._id,
-    name: user.name,
-    role: user.role,
-  };
-};
-
 module.exports = function (passport, userModel) {
   const router = express.Router();
 
   router.get('/', passport.check, (req, res, next) => {
-    userModel.find({}, (err, users) => {
+    userModel.list((err, users) => {
       if (err) return next(err);
-      res.json(users.map(filterUser));
+      res.json(users);
     });
   });
 
   router.get('/:_id', passport.check, (req, res, next) => {
-    res.json(req.user);
+    userModel.details(req.params._id, (err, user) => {
+      if (err) return next(err);
+      if (!user) return next({ status: 404 });
+      res.json(user);
+    });
   });
 
-  router.post('/register', (req, res, next) => {
+  router.post('/', (req, res, next) => {
     userModel.create(req.body, (err, user) => {
       if (err) {
         err.status = 400;
         return next(err);
       }
-      req.login(user, (err, res) => {
-        if (err) return next(err);
-      });
       res.status(201);
-      res.json(filterUser(user));
+      res.json(user);
     });
-  });
-
-  router.post('/login', (req, res, next) => {
-    passport.authenticate('local', (err, user, info) => {
-      if (err) return next(err);
-      if (!user) return next({ status: 401 });
-      req.login(user, (err) => {
-        if (err) return next(err);
-        res.json(user);
-      });
-    })(req, res, next);
-  });
-
-  router.post('/logout', passport.check, (req, res, next) => {
-    req.session.destroy();
-    req.logout();
-    // TODO: remove all edit locks initialized by this user
-    res.end();
   });
 
   router.put('/:_id', passport.check, (req, res, next) => {

@@ -29,6 +29,7 @@ const storyModel = require('./models/story')(connection);
 require('./common/sockets')(app.io, session, mongoStore, passport, storyModel);
 require('./common/auth')(passport, userModel);
 const usersRoute = require('./routes/users')(passport, userModel);
+const sessionRoute = require('./routes/session')(passport);
 const storiesRoute = require('./routes/stories')(passport, storyModel);
 
 // app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
@@ -60,6 +61,7 @@ app.use('/', (req, res, next) => {
 
 
 app.use('/api/users', usersRoute);
+app.use('/api/session', sessionRoute);
 app.use('/api/stories', storiesRoute);
 
 
