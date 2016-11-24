@@ -89,16 +89,17 @@ module.exports = function (connection) {
   };
 
   storySchema.statics.updateStory = function (_id, data, user, callback) {
-    if (data.locked_by && user.role !== 'editor') return callback({ status: 403 });
     this.findById(_id, (err, story) => {
       if (err) return callback(err);
       if (!story) return callback({ status: 404 });
+      if (story.locked_by && user.role !== 'editor') return callback({ status: 403 });
       delete data._id;
       data.updated_at = Date.now();
       if (data.stage === 'published' && !story.published_at) {
         data.published_at = data.updated_at;
       }
       if (data.locked_by) data.locked_by = data.locked_by._id;
+      Object.assign(story, data);
       story.save(data, (err, updatedStory) => {
           if (err) return callback(err);
           if (!updatedStory) return next({ status: 500 });
