@@ -1,7 +1,7 @@
 const passportSocketIo = require('passport.socketio');
 
 const debug = Debug('app:sockets');
-const timeout = 10000;
+const timeout = 2000;
 const activeStories = {};
 
 const updateLocks = function (story, user) {

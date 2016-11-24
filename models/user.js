@@ -56,6 +56,20 @@ module.exports = function (connection) {
     });
   });
 
+  userSchema.statics.list = function (callback) {
+    return this.find({}, '_id name role', (err, users) => {
+      if (err) return callback(err);
+      return callback(null, users);
+    });
+  };
+
+  userSchema.statics.details = function (_id, callback) {
+    return this.findOne({ _id }, '-__v -password', (err, user) => {
+      if (err) return callback(err);
+      return callback(null, user);
+    });
+  };
+
   userSchema.methods.checkPassword = function (password, callback) {
     bcrypt.compare(password, this.password, (err, res) => {
       if (err) return callback(err);
